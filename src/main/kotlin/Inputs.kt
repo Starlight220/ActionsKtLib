@@ -24,6 +24,9 @@ public fun getInput(name: String): String =
 /**
  * Property Delegate type for Action Inputs.
  *
+ * Reads first from the 'INPUT_${[name]}' environment variable, falling back to the [Environment]
+ * (which must be initialized before reading any inputs!).
+ *
  * @param name the property name. Defaults to the property name.
  * @param mapper a function that converts the object to a String. Defaults to [toString].
  *

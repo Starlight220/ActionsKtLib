@@ -24,6 +24,10 @@ public val outputFile: File = File("outputs.actions.json")
  * - all backing fields are of the type [String], optionally marked with [JvmField]
  */
 public interface Environment {
+    /**
+     * Companion object behaving as an [Environment] property delegate. [Input]s are read from this
+     * object, so it must be initialized before reading any inputs.
+     */
     public companion object EnvironmentManager {
         public var instance: Environment by Delegates.notNull()
 
