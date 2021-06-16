@@ -1,5 +1,6 @@
 package com.github.starlight.actions
 
+import java.util.*
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -7,13 +8,18 @@ import kotlin.reflect.KProperty
  * Get an input for this action.
  *
  * This is a low-level function. Use the [Input] delegate type instead.
+ * @throws InputMismatchException if no value for [name] exists.
  */
-public fun getInput(name: String): String? =
-    if (IS_LOCAL) {
-        Environment[name]
-    } else {
-        System.getenv("INPUT_${name.uppercase()}")
-    }
+@Throws(InputMismatchException::class)
+public fun getInput(name: String): String =
+    System.getenv("INPUT_${name.uppercase()}").takeUnless { it.isNullOrBlank() }
+        ?: Environment[name]
+            ?: throw InputMismatchException(
+            """
+                Input property `${name}` is undeclared or empty.
+                Please specify a value for it in your workflow YAML or config JSON.
+            """
+        )
 
 /**
  * Property Delegate type for Action Inputs.
@@ -26,23 +32,12 @@ public fun getInput(name: String): String? =
  */
 public open class Input<T>(private val name: String? = null, private val mapper: (String) -> T) :
     ReadOnlyProperty<Any, T> {
-    public companion object : Input<String>(null, IDENTITY) {
+    public companion object : Input<String>(mapper = IDENTITY) {
         /** Get an [Input] String property delegate with the given name. */
         public operator fun invoke(name: String): Input<String> = Input(name, IDENTITY)
     }
 
     @Throws(IllegalStateException::class)
-    override fun getValue(thisRef: Any, property: KProperty<*>): T {
-        val key = name ?: property.name
-        val value = getInput(key)
-        if (value.isNullOrBlank()) {
-            throw IllegalStateException(
-                """
-                Input property `${key}` is undeclared or empty.
-                Please specify a value for it in your workflow YAML.
-            """.trimIndent()
-            )
-        }
-        return mapper(value)
-    }
+    override fun getValue(thisRef: Any, property: KProperty<*>): T =
+        mapper(getInput(name ?: property.name))
 }

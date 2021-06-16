@@ -53,8 +53,6 @@ public open class Output<T>(
  *
  * This is a low-level function. Use the [Output] delegate type instead.
  */
-public fun setOutput(name: String, value: String): Unit {
-    println("[INFO] Set `$name` to `$value`")
-    if (IS_LOCAL) Environment.EnvironmentManager[name] = value
-    else println("::set-output name=${name.escaped()}::${value.escaped()}")
+public fun setOutput(name: String, value: String) {
+    Environment.EnvironmentManager[name] = value
 }

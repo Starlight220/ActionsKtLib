@@ -1,17 +1,20 @@
 package com.github.starlight.actions
 
+import java.io.File
+import kotlin.properties.Delegates
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.io.File
-import kotlin.contracts.ExperimentalContracts
-import kotlin.properties.Delegates
 
-/** Whether the program is running on a local machine or on a GitHub Actions runner. */
+/**
+ * Uses the `CI` environment variable to determine whether the program is running on a local machine
+ * or on a GitHub Actions runner.
+ */
 public val IS_LOCAL: Boolean = System.getenv("CI")?.toBooleanStrictOrNull()?.not() ?: true
 
-private const val outputFilePath = "outputs.inspect_rli.json"
+/** All outputs will be written to this file */
+public val outputFile: File = File("outputs.actions.json")
 
 /**
  * A base interface for config data classes.
@@ -24,20 +27,16 @@ public interface Environment {
     public companion object EnvironmentManager {
         public var instance: Environment by Delegates.notNull()
 
-        private fun <T> T?.notNull(): T = this ?: throw UninitializedPropertyAccessException()
-
         @JvmStatic
-        public inline operator fun <reified T : Environment> invoke(
-            raw: String
-        ): T {
+        public inline operator fun <reified T : Environment> invoke(raw: String): T {
             instance = Json.decodeFromString<T>(raw)
 
             return instance as T
         }
 
-        public operator fun get(field: String): String? = instance.notNull()[field]
+        public operator fun get(field: String): String? = instance[field]
         public operator fun set(field: String, value: String) {
-            instance.notNull()[field] = value
+            instance[field] = value
         }
     }
 
@@ -48,14 +47,19 @@ public interface Environment {
         this::class.java.fields.first { it.name == field }.get(this) as? String
 
     public operator fun set(name: String, value: String) {
-        val file = File(outputFilePath)
+        Logger.debug("Set `$name` to `$value`")
+        if (!IS_LOCAL) {
+            printlnEscaped("::set-output name=${name.escaped()}::${value.escaped()}")
+            return
+        }
+
         val list: MutableMap<String, String> =
-            if (file.exists()) {
-                Json.decodeFromString(file.readText())
+            if (outputFile.exists()) {
+                Json.decodeFromString(outputFile.readText())
             } else {
                 mutableMapOf()
             }
         list += name to value
-        file.writeText(Json.encodeToString(list))
+        outputFile.writeText(Json.encodeToString(list))
     }
 }
