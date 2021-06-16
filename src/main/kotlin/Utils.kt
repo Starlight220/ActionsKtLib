@@ -8,7 +8,8 @@ internal val IDENTITY: (String) -> String = { it }
  *
  * Source: https://github.community/t/set-output-truncates-multiline-strings/16852/5
  */
-public fun String.escaped(): String = replace("%", "%25").replace("\n", "%0A").replace("\r", "%0D")
+public fun String.escaped(): String =
+    if (IS_LOCAL) this else replace("%", "%25").replace("\n", "%0A").replace("\r", "%0D")
 
 /** @see [escaped] */
 public fun printlnEscaped(str: String) {
