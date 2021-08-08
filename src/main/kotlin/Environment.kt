@@ -32,11 +32,23 @@ public interface Environment {
         public var instance: Environment by Delegates.notNull()
 
         @JvmStatic
-        public inline operator fun <reified T : Environment> invoke(raw: String): T {
+        public inline fun <reified T : Environment> loadRaw(raw: String): T {
             instance = Json.decodeFromString<T>(raw)
 
             return instance as T
         }
+
+        /** Load from a file pointed to by an environment variable. */
+        @JvmStatic
+        public inline fun <reified T : Environment> loadFrom(envVar: String): T =
+            loadRaw(
+                File(
+                        System.getenv("GITHUB_WORKSPACE").takeUnless { it.isNullOrBlank() },
+                        System.getenv(envVar).takeUnless { it.isNullOrBlank() }
+                            ?: error("Variable $envVar pointing to config file is empty!")
+                    )
+                    .readText()
+            )
 
         public operator fun get(field: String): String? = instance[field]
         public operator fun set(field: String, value: String) {
