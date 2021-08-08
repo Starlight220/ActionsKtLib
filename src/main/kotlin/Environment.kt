@@ -65,7 +65,7 @@ public interface Environment {
     public operator fun set(name: String, value: String) {
         Logger.debug("Set `$name` to `$value`")
         if (!IS_LOCAL) {
-            printlnEscaped("::set-output name=${name.escaped()}::${value.escaped()}")
+            println("::set-output name=$name::$value")
             return
         }
 

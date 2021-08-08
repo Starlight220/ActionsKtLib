@@ -21,14 +21,14 @@ public object Logger {
          * [group].
          */
         public fun flush() {
-            printlnEscaped("""::group::${header}""")
-            lines.forEach(::printlnEscaped)
+            println("""::group::${header}""")
+            lines.forEach { println(it) }
             lines.clear()
-            printlnEscaped("""::endgroup::""")
+            println("""::endgroup::""")
         }
     }
 
     public fun debug(str: String) {
-        printlnEscaped(str)
+        println(str)
     }
 }
