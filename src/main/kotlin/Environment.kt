@@ -1,4 +1,4 @@
-package com.github.starlight.actions
+package com.github.starlight220.actions
 
 import java.io.File
 import kotlin.properties.Delegates

@@ -1,4 +1,4 @@
-package com.github.starlight.actions
+package com.github.starlight220.actions
 
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty

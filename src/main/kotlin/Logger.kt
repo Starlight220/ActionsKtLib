@@ -1,4 +1,4 @@
-package com.github.starlight.actions
+package com.github.starlight220.actions
 
 public object Logger {
     /** Print a collapsable group of lines to the console. */
