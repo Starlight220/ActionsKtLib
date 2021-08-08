@@ -12,14 +12,16 @@ import kotlin.reflect.KProperty
  */
 @Throws(InputMismatchException::class)
 public fun getInput(name: String): String =
-    System.getenv("INPUT_${name.uppercase()}").takeUnless { it.isNullOrBlank() }
-        ?: Environment[name]
-            ?: throw InputMismatchException(
-            """
+    cache.getOrPut(name) {
+        System.getenv("INPUT_${name.uppercase()}").takeUnless { it.isNullOrBlank() }
+            ?: Environment[name]
+                ?: throw InputMismatchException(
+                """
                 Input property `${name}` is undeclared or empty.
                 Please specify a value for it in your workflow YAML or config JSON.
             """
-        )
+            )
+    }
 
 /**
  * Property Delegate type for Action Inputs.
@@ -44,3 +46,5 @@ public open class Input<T>(private val name: String? = null, private val mapper:
     override fun getValue(thisRef: Any, property: KProperty<*>): T =
         mapper(getInput(name ?: property.name))
 }
+
+internal val cache: MutableMap<String, String> = mutableMapOf()
