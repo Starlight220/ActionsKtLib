@@ -1,0 +1,47 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.5.0'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.5.0'
+    id "com.diffplug.spotless" version "5.12.5"
+    id 'maven'
+    id 'maven-publish'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1"
+}
+
+spotless {
+    kotlin {
+        ktfmt('0.25').kotlinlangStyle()
+        endWithNewline()
+    }
+}
+
+group = "com.github.Starlight220"
+version = "1.0"
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+              afterEvaluate {
+                 artifactId = jar.archiveBaseName.get()
+              }
+        }
+    }
+}
+kotlin.explicitApi()
+
+dependencies {
+    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+}
