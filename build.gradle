@@ -45,3 +45,7 @@ kotlin.explicitApi()
 dependencies {
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
 }
+
+task runTests() {
+    dependsOn ":test_runner:run"
+}

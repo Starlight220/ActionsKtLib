@@ -1,0 +1,17 @@
+on: [push, workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run Tests
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run
+        uses: ./ # Uses an action in the root directory
+        id: tested
+        with:
+          testInput: 'testInput123'
+
+      # Use the output from the `hello` step
+      - name: Test Multiline Output
+        run: echo "output was! ${{ steps.tested.outputs.multiline }}"
