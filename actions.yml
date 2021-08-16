@@ -1,0 +1,6 @@
+name: TESTS
+description: TEST ONLY, DO NOT USE
+runs:
+  image: 'Dockerfile'
+  using: 'docker'
+
