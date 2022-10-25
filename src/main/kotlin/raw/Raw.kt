@@ -23,7 +23,7 @@ public fun isDebug(): Boolean = System.getenv("RUNNER_DEBUG") == 1.toString()
  * @see System.getenv
  */
 public fun getInputOrNull(name: String): String? {
-    return System.getenv("INPUT_$name")
+    return System.getenv("INPUT_${name.uppercase()}")
 }
 
 /**
