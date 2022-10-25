@@ -1,19 +1,17 @@
 package com.github.starlight220.actions
 
-internal val IDENTITY: (String) -> String = { it }
+import com.github.starlight220.actions.raw.isCI
+import com.github.starlight220.actions.raw.isDebug
 
 /**
- * GitHub Actions doesn't like multiline strings, so this escapes the newlines into something that
- * GH Actions accepts.
- *
- * Source: https://github.community/t/set-output-truncates-multiline-strings/16852/5
+ * Uses the `GITHUB_ACTIONS` environment variable to determine whether the program is running on a
+ * local machine or on a GitHub Actions runner.
  */
-@Deprecated("It seems that this issue has been fixed", ReplaceWith("this"))
-public fun String.escaped(): String = this
-//    if (IS_LOCAL) this else replace("%", "%25").replace("\n", "%0A").replace("\r", "%0D")
+public val isCI: Boolean by lazy { isCI() }
 
-/** @see [escaped] */
-@Deprecated("This is a workaround for a bug that was fixed.", ReplaceWith("println(str)"))
-public fun printlnEscaped(str: String) {
-    println(str)
-}
+/**
+ * Uses the `RUNNER_DEBUG` environment variable to determine whether
+ * [debug logging](https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/enabling-debug-logging)
+ * is enabled.
+ */
+public val isDebug: Boolean by lazy { isDebug() }

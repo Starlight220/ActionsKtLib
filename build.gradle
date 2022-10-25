@@ -43,4 +43,9 @@ kotlin.explicitApi()
 
 dependencies {
     api('org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0')
+    testImplementation('org.jetbrains.kotlin:kotlin-test')
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

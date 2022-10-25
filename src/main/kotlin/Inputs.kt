@@ -1,50 +1,45 @@
 package com.github.starlight220.actions
 
-import java.util.*
+import com.github.starlight220.actions.raw.getInputOrNull
+import kotlin.jvm.Throws
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
+public class NoSuchInputException(input: String) :
+    NoSuchElementException("Input <$input> not found!")
+
 /**
- * Get an input for this action.
- *
- * This is a low-level function. Use the [Input] delegate type instead.
- * @throws InputMismatchException if no value for [name] exists.
+ * Reads from the 'INPUT_${[name]}' environment variable, throwing if no such an input is defined.
  */
-@Throws(InputMismatchException::class)
-public fun getInput(name: String): String =
-    cache.getOrPut(name) {
-        System.getenv("INPUT_${name.uppercase()}").takeUnless { it.isNullOrBlank() }
-            ?: Environment[name]
-                ?: throw InputMismatchException(
-                """
-                Input property `${name}` is undeclared or empty.
-                Please specify a value for it in your workflow YAML or config JSON.
-            """
-            )
-    }
+@Throws(NoSuchInputException::class)
+public fun getInputOrThrow(name: String): String =
+    getInputOrNull(name) ?: throw NoSuchInputException(name)
 
 /**
  * Property Delegate type for Action Inputs.
  *
- * Reads first from the 'INPUT_${[name]}' environment variable, falling back to the [Environment]
- * (which must be initialized before reading any inputs!).
+ * Reads from the 'INPUT_${[name]}' environment variable, throwing if no such an input is defined.
  *
  * @param name the property name. Defaults to the property name.
- * @param mapper a function that converts the object to a String. Defaults to [toString].
+ * @param mapper a function that converts the object from a String. Defaults to the identity
+ * function.
  *
  * If the property name is identical to the input name, and the property is a String; use the
  * Companion object for a cleaner usage syntax.
  */
-public open class Input<T>(private val name: String? = null, private val mapper: (String) -> T) :
+public open class Input<T>(private val name: String, private val mapper: (String) -> T) :
     ReadOnlyProperty<Any, T> {
-    public companion object : Input<String>(mapper = IDENTITY) {
+    public companion object : ReadOnlyProperty<Any, String> {
+        private val inputs: MutableMap<String, String> = mutableMapOf()
+
+        override fun getValue(thisRef: Any, property: KProperty<*>): String {
+            val key = property.name
+            return inputs.getOrPut(key) { getInputOrNull(key) ?: throw NoSuchInputException(key) }
+        }
+
         /** Get an [Input] String property delegate with the given name. */
-        public operator fun invoke(name: String): Input<String> = Input(name, IDENTITY)
+        public operator fun invoke(name: String): Input<String> = Input(name) { it }
     }
 
-    @Throws(IllegalStateException::class)
-    override fun getValue(thisRef: Any, property: KProperty<*>): T =
-        mapper(getInput(name ?: property.name))
+    override fun getValue(thisRef: Any, property: KProperty<*>): T = mapper(getInputOrThrow(name))
 }
-
-internal val cache: MutableMap<String, String> = mutableMapOf()
