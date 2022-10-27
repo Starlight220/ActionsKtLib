@@ -32,10 +32,10 @@ public fun escapeMultiline(
     name: String,
     value: String,
     delimiter: String = delimiterGenerator()
-): String = """
-    $name<<$delimiter
-    $value
-    $delimiter
-""".trimIndent()
+): String = buildString {
+    appendLine("$name<<$delimiter")
+    appendLine(value)
+    appendLine(delimiter)
+}
 
 public var delimiterGenerator: () -> String = { "EOF" }
