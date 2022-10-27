@@ -94,6 +94,7 @@ public fun findPathFile(): Result<File> = findFile("GITHUB_PATH")
 internal fun write(file: File, content: String) {
     FileWriter(/* file = */ file, /* charset = */ Charsets.UTF_8, /* append = */ true).use { writer ->
         writer.append(content)
+        writer.appendLine()
         writer.flush()
     }
 }
