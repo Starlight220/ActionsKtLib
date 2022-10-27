@@ -2,6 +2,7 @@ package com.github.starlight220.actions.raw
 
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.FileWriter
 
 /**
  * Uses the `GITHUB_ACTIONS` environment variable to determine whether the program is running on a
@@ -91,5 +92,8 @@ public fun findStepSummaryFile(): Result<File> = findFile("GITHUB_STEP_SUMMARY")
 public fun findPathFile(): Result<File> = findFile("GITHUB_PATH")
 
 internal fun write(file: File, content: String) {
-    file.appendText(text = content, charset = Charsets.UTF_8)
+    FileWriter(/* file = */ file, /* charset = */ Charsets.UTF_8, /* append = */ true).use { writer ->
+        writer.append(content)
+        writer.flush()
+    }
 }
