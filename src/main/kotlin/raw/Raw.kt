@@ -39,7 +39,7 @@ public fun getEnvOrNull(name: String): String? {
 
 internal fun findFile(name: String): Result<File> {
     val path =
-        System.getenv(name).takeUnless { it.isEmpty() }
+        getEnvOrNull(name).takeUnless { it.isNullOrEmpty() }
             ?: return Result.failure(NoSuchElementException("Env variable <$name> not found!"))
     val file = File(path)
     return when {
